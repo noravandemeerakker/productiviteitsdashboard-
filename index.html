@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Productiviteitsdashboard – CS Team</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f0f2f5;color:#1a1a1a;min-height:100vh}
+header{background:#1F3864;color:#fff;padding:14px 28px}
+header h1{font-size:17px;font-weight:700}
+header p{font-size:12px;opacity:.7;margin-top:2px}
+.nav{display:flex;border-bottom:2px solid #1F3864;background:#fff}
+.nav-btn{padding:11px 22px;font-size:13px;font-family:Arial,sans-serif;font-weight:600;border:none;background:none;cursor:pointer;color:#666;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s}
+.nav-btn:hover{color:#1F3864;background:#f5f7ff}
+.nav-btn.active{color:#1F3864;border-bottom-color:#1F3864}
+.container{max-width:1080px;margin:0 auto;padding:18px 20px 40px}
+
+/* NORM BAR */
+.norm-bar{background:#fff;border:1px solid #e0e4ea;border-radius:10px;padding:14px 20px;margin-bottom:16px;display:grid;grid-template-columns:repeat(3,1fr) 1.6fr;gap:0;border-left:4px solid #1F3864}
+.ni{padding:0 16px 0 0;border-right:1px solid #eee}
+.ni:last-child{border-right:none;padding-right:0}
+.ni-label{font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.ni-val{font-size:19px;font-weight:700;color:#1F3864}
+.ni-calc{font-size:11px;color:#aaa;margin-top:1px}
+.norm-tip{font-size:11px;color:#555;background:#f5f7ff;border-radius:6px;padding:8px 12px;line-height:1.7;display:flex;align-items:center}
+
+/* FILTER BAR */
+.filter-bar{background:#fff;border:1px solid #e0e4ea;border-radius:10px;padding:12px 18px;margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-bar .flabel{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-right:4px;white-space:nowrap}
+.fb{padding:5px 12px;border-radius:6px;border:1px solid #d0d5dd;background:#fff;color:#555;font-size:12px;font-weight:600;font-family:Arial,sans-serif;cursor:pointer;transition:all .15s}
+.fb:hover{border-color:#1F3864;color:#1F3864}
+.fb.active{background:#1F3864;color:#fff;border-color:#1F3864}
+.sep{width:1px;height:20px;background:#e0e4ea;margin:0 4px}
+
+/* CARDS */
+.card{background:#fff;border-radius:10px;border:1px solid #e0e4ea;padding:16px 20px;margin-bottom:14px}
+.card h2{font-size:12px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+
+/* NAMES */
+.name-grid{display:flex;flex-wrap:wrap;gap:7px}
+.name-btn{padding:6px 14px;border-radius:6px;border:1px solid #d0d5dd;background:#fff;color:#333;font-size:13px;font-family:Arial,sans-serif;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px}
+.name-btn:hover{background:#f0f4ff;border-color:#1F3864}
+.name-btn.active{background:#1F3864;color:#fff;border-color:#1F3864}
+.badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px}
+.b1{background:#dbeafe;color:#1e40af}.active .b1{background:rgba(255,255,255,.25);color:#fff}
+.b2{background:#dcfce7;color:#166534}.active .b2{background:rgba(255,255,255,.25);color:#fff}
+.b12{background:#fef9c3;color:#713f12}.active .b12{background:rgba(255,255,255,.25);color:#fff}
+
+/* METRICS */
+.mrow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
+.mc{background:#f8f9fb;border-radius:8px;border:1px solid #eaecf0;padding:12px 14px}
+.mc .ml{font-size:10px;color:#888;margin-bottom:3px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.mc .mv{font-size:21px;font-weight:700;color:#1a1a1a}
+.mc .ms{margin-top:5px}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px}
+.pg{background:#c6efce;color:#276221}.pa{background:#ffeb9c;color:#9c6500}.pr{background:#ffc7ce;color:#9c0006}.pn{background:#eee;color:#777}
+
+/* TREND */
+.trend-up{color:#276221;font-weight:700}
+.trend-dn{color:#9c0006;font-weight:700}
+.trend-fl{color:#9c6500;font-weight:700}
+
+/* TIJD */
+.tijd-bar{background:#fff;border:1px solid #e0e4ea;border-radius:10px;padding:14px 20px;margin-bottom:14px;border-left:4px solid #F4B942}
+.tijd-bar h2{font-size:12px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+.tgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.ti{background:#fafafa;border-radius:8px;border:1px solid #eee;padding:11px 13px}
+.ti .tl{font-size:10px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.ti .tv{font-size:17px;font-weight:700}
+.ti .ts{font-size:11px;color:#aaa;margin-top:2px}
+.tv-b{color:#1F3864}.tv-g{color:#276221}.tv-o{color:#9c6500}.tv-r{color:#9c0006}
+
+/* CHARTS */
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.cc{background:#fff;border-radius:10px;border:1px solid #e0e4ea;padding:14px 17px}
+.cc .cl{font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+.cc .cs{font-size:11px;color:#aaa;margin-bottom:8px}
+.legend-row{display:flex;gap:12px;margin-bottom:7px;flex-wrap:wrap}
+.li{display:flex;align-items:center;gap:4px;font-size:11px;color:#666}
+.lsq{width:9px;height:9px;border-radius:2px;display:inline-block}
+.lln{width:16px;height:0;border-top:2px dashed #999;display:inline-block;vertical-align:middle}
+
+/* TREND CHART */
+.trend-card{background:#fff;border-radius:10px;border:1px solid #e0e4ea;padding:14px 17px;margin-bottom:14px}
+.trend-card h2{font-size:12px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.trend-card p{font-size:11px;color:#aaa;margin-bottom:10px}
+
+/* TABLE */
+.twrap{background:#fff;border-radius:10px;border:1px solid #e0e4ea;overflow:hidden;margin-bottom:14px}
+.twrap h2{font-size:12px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.05em;padding:12px 17px;border-bottom:1px solid #eee;margin:0}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:#f8f9fb;font-weight:700;font-size:11px;color:#666;padding:8px 12px;text-align:center;border-bottom:1px solid #eee;text-transform:uppercase;letter-spacing:.03em;cursor:pointer;user-select:none}
+thead th:first-child,thead th:nth-child(2){text-align:left}
+thead th:hover{background:#eef2ff}
+tbody tr:hover{background:#fafbff}
+tbody td{padding:7px 12px;text-align:center;border-bottom:1px solid #f0f0f0;color:#333}
+tbody td:first-child{text-align:left;font-weight:600}
+tbody td:nth-child(2){text-align:left;color:#999}
+tbody tr:last-child td{border-bottom:none}
+.abs-row td{color:#bbb;font-style:italic}
+
+.placeholder-msg{text-align:center;padding:50px;color:#aaa;font-size:14px}
+.psel-btn{padding:4px 12px;border-radius:20px;border:1px solid #d0d5dd;background:#fff;color:#555;font-size:12px;font-family:Arial,sans-serif;cursor:pointer}
+.psel-btn.psel-active{background:#1F3864;color:#fff;border-color:#1F3864}
+</style>
+</head>
+<body>
+<header>
+  <h1>Productiviteitsdashboard – CS Team</h1>
+  <p>Norm: 48 cases/dag · 36 telefonie/dag · Data: 1 mei – 29 mei 2026</p>
+</header>
+
+<div class="container">
+<div class="nav">
+  <button class="nav-btn active" onclick="switchTab('ind')">Individueel</button>
+  <button class="nav-btn" onclick="switchTab('tot')">Totaaloverzicht</button>
+    <button class="nav-btn" onclick="switchTab('sf')">Cases analyse</button>
+</div>
+
+<!-- NORM BAR (always visible) -->
+<div class="norm-bar">
+  <div class="ni" style="padding-left:0">
+    <div class="ni-label">Cases norm</div>
+    <div class="ni-val">48 / dag</div>
+    <div class="ni-calc">50% van 8u = 240 min ÷ 5 min/case</div>
+  </div>
+  <div class="ni">
+    <div class="ni-label">Telefonie norm</div>
+    <div class="ni-val">36 / dag</div>
+    <div class="ni-calc">30% van 8u = 144 min ÷ 4 min/gesprek</div>
+  </div>
+  <div class="ni">
+    <div class="ni-label">Overig + chat</div>
+    <div class="ni-val">96 min</div>
+    <div class="ni-calc">20% van 8u — geen vaste norm</div>
+  </div>
+  <div class="ni">
+    <div class="norm-tip">
+      🟢 Norm gehaald &nbsp;🟡 80–99% &nbsp;🔴 &lt;80%<br>
+      ── Normlijn &nbsp;╌╌ Daggemiddelde lijngenoten<br>
+      ↑ Stijgende trend · ↓ Dalende trend (v.d. laatste helft data)
+    </div>
+  </div>
+</div>
+
+<div id="dataStatus" style="background:#f8f9fb;border:1px solid #e0e4ea;border-radius:8px;padding:8px 16px;margin-bottom:12px;font-size:12px;color:#888">Data wordt geladen...</div>
+<div id="dataStatus" style="background:#f8f9fb;border:1px solid #e0e4ea;border-radius:8px;padding:8px 16px;margin-bottom:12px;font-size:12px;color:#888">Data wordt geladen...</div>
+<!-- WEEK + LIJN FILTERS (shared) -->
+<div class="filter-bar" id="globalFilters">
+  <span class="flabel">Week:</span>
+  <span id="weekButtons"></span>
+  <div class="sep"></div>
+  <span class="flabel">Lijn:</span>
+  <button class="fb active" data-lijn="alle" onclick="setLijn(this)" id="lijnAlle">Alle</button>
+  <button class="fb" data-lijn="1" onclick="setLijn(this)">1e lijn</button>
+  <button class="fb" data-lijn="2" onclick="setLijn(this)">2e lijn</button>
+  <button class="fb" data-lijn="1+2" onclick="setLijn(this)">1e+2e</button>
+</div>
+
+<!-- INDIVIDUEEL -->
+<div id="page-ind">
+  <div class="card">
+    <h2>Kies medewerker</h2>
+    <div class="name-grid" id="nameGrid"></div>
+  </div>
+  <div id="ind-content"><div class="placeholder-msg">Klik op een naam om je dashboard te openen.</div></div>
+</div>
+
+<!-- TOTAAL -->
+<div id="page-tot" style="display:none">
+  <div class="card" style="margin-bottom:14px"><h2 style="font-size:12px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Medewerker selectie</h2><div id="personSelect" style="display:flex;flex-wrap:wrap;gap:6px"></div></div>
+  <div id="totMetrics" class="mrow" style="grid-template-columns:repeat(4,1fr)"></div>
+  <div class="card" style="margin-bottom:14px"><h2 style="font-size:12px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Staafdiagram</h2><div style="position:relative;height:280px"><canvas id="totChart"></canvas></div></div>
+  <div class="twrap">
+    <h2>Gemiddelden per medewerker <span style="font-weight:400;color:#aaa;font-size:11px">(klik kolom om te sorteren)</span></h2>
+    <table>
+      <thead><tr>
+        <th onclick="sortTot(0)">Naam ↕</th>
+        <th onclick="sortTot(1)">Lijn ↕</th>
+        <th onclick="sortTot(2)">Gem. cases ↕</th>
+        <th onclick="sortTot(3)">% norm cases ↕</th>
+        <th onclick="sortTot(4)">Gem. tel ↕</th>
+        <th onclick="sortTot(5)">% norm tel ↕</th>
+        <th onclick="sortTot(6)">Trend cases ↕</th>
+        <th onclick="sortTot(7)">Theor. tijd ↕</th>
+        <th onclick="sortTot(8)">"Vrije" tijd ↕</th>
+        <th onclick="sortTot(9)">Dagen ↕</th>
+      </tr></thead>
+      <tbody id="totBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="page-sf" style="display:none">
+  <div id="sfMetrics" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px"></div>
+  <div class="card" style="margin-bottom:14px">
+    <h2 style="font-size:12px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Cases per medewerker</h2>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px" id="sfCatFilter"></div>
+    <div style="position:relative;height:280px"><canvas id="sfBarChart"></canvas></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+    <div class="card"><h2 style="font-size:12px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Openstaande cases</h2><table style="width:100%;border-collapse:collapse;font-size:13px" id="sfStatusTable"></table></div>
+    <div class="card"><h2 style="font-size:12px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Top subcategorieën</h2><div style="position:relative;height:200px"><canvas id="sfSubcatChart"></canvas></div></div>
+  </div>
+  <div class="twrap"><h2>Detail per medewerker</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr style="background:#f8f9fb">
+        <th style="padding:8px 13px;text-align:left;font-size:11px;color:#666;border-bottom:1px solid #eee">Medewerker</th>
+        <th style="padding:8px 13px;text-align:center;font-size:11px;color:#666;border-bottom:1px solid #eee">Totaal</th>
+        <th style="padding:8px 13px;text-align:center;font-size:11px;color:#666;border-bottom:1px solid #eee">Closed</th>
+        <th style="padding:8px 13px;text-align:center;font-size:11px;color:#666;border-bottom:1px solid #eee">On Hold</th>
+        <th style="padding:8px 13px;text-align:center;font-size:11px;color:#666;border-bottom:1px solid #eee">Wacht klant</th>
+        <th style="padding:8px 13px;text-align:left;font-size:11px;color:#666;border-bottom:1px solid #eee">Top 3</th>
+      </tr></thead>
+      <tbody id="sfDetailBody"></tbody>
+    </table>
+  </div>
+</div>
+</div><!-- /container -->
+
+<script>
+const NC=48,NT=36,DAY=480,NC2=42;
+const CUTOFF='27-05-2026';
+const ALWAYS2=['Baoying','Bas','Dimitri','Stacy'];
+
+// Week map: date → week code
+function dateToWeek(d){
+  const parts=d.split('-');
+  const dt=new Date(+parts[2],+parts[1]-1,+parts[0]);
+  const day=dt.getDay()||7;
+  const mon=new Date(dt);mon.setDate(dt.getDate()-day+1);
+  const yr=new Date(mon.getFullYear(),0,1);
+  return 'W'+String(Math.ceil(((mon-yr)/86400000+1)/7)).padStart(2,'0');
+}
+
+const SHEET_ID = '1o4iymuMa5wm6AS7ZGT6GN7acAbVS4IuHGDk9NLCF7gk';
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/1o4iymuMa5wm6AS7ZGT6GN7acAbVS4IuHGDk9NLCF7gk/export?format=csv&gid=0';
+const FALLBACK_DATA = {"Maaike": {"lijn": "1", "days": [{"d": "13-05-2026", "cases": 41, "tel": 16, "chat": 19, "absent": false}, {"d": "15-05-2026", "cases": 14, "tel": 20, "chat": 0, "absent": false}, {"d": "19-05-2026", "cases": 1, "tel": 0, "chat": 0, "absent": false}]}, "Baoying": {"lijn": "2", "days": [{"d": "01-05-2026", "cases": 29, "tel": 0, "chat": 0, "absent": false}, {"d": "04-05-2026", "cases": 48, "tel": 0, "chat": 0, "absent": false}, {"d": "05-05-2026", "cases": 44, "tel": 0, "chat": 0, "absent": false}, {"d": "06-05-2026", "cases": 24, "tel": 0, "chat": 0, "absent": false}, {"d": "07-05-2026", "cases": 33, "tel": 0, "chat": 0, "absent": false}, {"d": "08-05-2026", "cases": 33, "tel": 0, "chat": 0, "absent": false}, {"d": "11-05-2026", "cases": 18, "tel": 0, "chat": 0, "absent": false}, {"d": "12-05-2026", "cases": 18, "tel": 0, "chat": 0, "absent": false}, {"d": "13-05-2026", "cases": 4, "tel": 0, "chat": 0, "absent": false}, {"d": "15-05-2026", "cases": 17, "tel": 0, "chat": 0, "absent": false}, {"d": "18-05-2026", "cases": 27, "tel": 0, "chat": 0, "absent": false}, {"d": "19-05-2026", "cases": 14, "tel": 0, "chat": 0, "absent": false}, {"d": "20-05-2026", "cases": 16, "tel": 0, "chat": 0, "absent": false}, {"d": "21-05-2026", "cases": 19, "tel": 0, "chat": 0, "absent": false}, {"d": "26-05-2026", "cases": 39, "tel": 0, "chat": 0, "absent": false}, {"d": "27-05-2026", "cases": 33, "tel": 0, "chat": 0, "absent": false}, {"d": "28-05-2026", "cases": 41, "tel": 0, "chat": 0, "absent": false}, {"d": "29-05-2026", "cases": 27, "tel": 0, "chat": 0, "absent": false}]}, "Bas": {"lijn": "2", "days": [{"d": "04-05-2026", "cases": 3, "tel": 0, "chat": 0, "absent": false}, {"d": "05-05-2026", "cases": 9, "tel": 0, "chat": 0, "absent": false}, {"d": "06-05-2026", "cases": 10, "tel": 0, "chat": 0, "absent": false}, {"d": "07-05-2026", "cases": 22, "tel": 0, "chat": 0, "absent": false}, {"d": "08-05-2026", "cases": 24, "tel": 0, "chat": 0, "absent": false}, {"d": "11-05-2026", "cases": 16, "tel": 0, "chat": 0, "absent": false}, {"d": "12-05-2026", "cases": 10, "tel": 0, "chat": 0, "absent": false}, {"d": "13-05-2026", "cases": 11, "tel": 0, "chat": 0, "absent": false}, {"d": "15-05-2026", "cases": 10, "tel": 0, "chat": 0, "absent": false}, {"d": "18-05-2026", "cases": 4, "tel": 0, "chat": 0, "absent": false}, {"d": "19-05-2026", "cases": 8, "tel": 0, "chat": 0, "absent": false}, {"d": "20-05-2026", "cases": 11, "tel": 0, "chat": 0, "absent": false}, {"d": "21-05-2026", "cases": 18, "tel": 0, "chat": 0, "absent": false}, {"d": "26-05-2026", "cases": 21, "tel": 0, "chat": 0, "absent": false}, {"d": "27-05-2026", "cases": 9, "tel": 0, "chat": 0, "absent": false}, {"d": "28-05-2026", "cases": 1, "tel": 0, "chat": 0, "absent": false}, {"d": "29-05-2026", "cases": 10, "tel": 0, "chat": 0, "absent": false}]}, "Danou": {"lijn": "1", "days": [{"d": "01-05-2026", "cases": 15, "tel": 0, "chat": 0, "absent": false}, {"d": "05-05-2026", "cases": 35, "tel": 0, "chat": 0, "absent": false}, {"d": "06-05-2026", "cases": 17, "tel": 0, "chat": 0, "absent": false}, {"d": "07-05-2026", "cases": 13, "tel": 0, "chat": 0, "absent": false}, {"d": "08-05-2026", "cases": 14, "tel": 0, "chat": 0, "absent": false}, {"d": "11-05-2026", "cases": 21, "tel": 28, "chat": 0, "absent": false}, {"d": "12-05-2026", "cases": 25, "tel": 49, "chat": 0, "absent": false}, {"d": "13-05-2026", "cases": 37, "tel": 21, "chat": 0, "absent": false}, {"d": "15-05-2026", "absent": true}, {"d": "26-05-2026", "cases": 33, "tel": 0, "chat": 31, "absent": false}, {"d": "27-05-2026", "cases": 37, "tel": 0, "chat": 16, "absent": false}]}, "Dimitri": {"lijn": "2", "days": [{"d": "04-05-2026", "cases": 24, "tel": 0, "chat": 0, "absent": false}, {"d": "05-05-2026", "cases": 19, "tel": 0, "chat": 0, "absent": false}, {"d": "06-05-2026", "cases": 20, "tel": 0, "chat": 0, "absent": false}, {"d": "07-05-2026", "cases": 11, "tel": 0, "chat": 0, "absent": false}, {"d": "11-05-2026", "cases": 13, "tel": 0, "chat": 0, "absent": false}, {"d": "12-05-2026", "cases": 6, "tel": 0, "chat": 0, "absent": false}, {"d": "13-05-2026", "cases": 14, "tel": 0, "chat": 0, "absent": false}, {"d": "15-05-2026", "absent": true}, {"d": "18-05-2026", "cases": 9, "tel": 0, "chat": 0, "absent": false}, {"d": "19-05-2026", "cases": 2, "tel": 0, "chat": 0, "absent": false}, {"d": "20-05-2026", "cases": 3, "tel": 0, "chat": 0, "absent": false}, {"d": "21-05-2026", "cases": 12, "tel": 0, "chat": 0, "absent": false}, {"d": "26-05-2026", "cases": 5, "tel": 0, "chat": 0, "absent": false}, {"d": "27-05-2026", "cases": 4, "tel": 0, "chat": 0, "absent": false}, {"d": "28-05-2026", "cases": 10, "tel": 0, "chat": 0, "absent": false}]}, "Eva": {"lijn": "1+2", "days": [{"d": "01-05-2026", "cases": 49, "tel": 0, "chat": 0, "absent": false}, {"d": "04-05-2026", "cases": 20, "tel": 0, "chat": 0, "absent": false}, {"d": "15-05-2026", "cases": 47, "tel": 23, "chat": 2, "absent": false}]}, "Imke": {"lijn": "1", "days": [{"d": "01-05-2026", "cases": 33, "tel": 0, "chat": 8, "absent": false}, {"d": "04-05-2026", "cases": 62, "tel": 0, "chat": 0, "absent": false}, {"d": "05-05-2026", "cases": 33, "tel": 0, "chat": 0, "absent": false}, {"d": "06-05-2026", "cases": 26, "tel": 0, "chat": 0, "absent": false}, {"d": "08-05-2026", "cases": 32, "tel": 0, "chat": 0, "absent": false}, {"d": "11-05-2026", "cases": 21, "tel": 0, "chat": 8, "absent": false}, {"d": "12-05-2026", "cases": 78, "tel": 0, "chat": 1, "absent": false}, {"d": "13-05-2026", "cases": 21, "tel": 18, "chat": 3, "absent": false}, {"d": "15-05-2026", "cases": 27, "tel": 29, "chat": 18, "absent": false}, {"d": "18-05-2026", "cases": 55, "tel": 22, "chat": 0, "absent": false}, {"d": "19-05-2026", "cases": 32, "tel": 39, "chat": 13, "absent": false}, {"d": "20-05-2026", "cases": 31, "tel": 46, "chat": 9, "absent": false}, {"d": "22-05-2026", "cases": 0, "tel": 33, "chat": 12, "absent": false}, {"d": "26-05-2026", "cases": 38, "tel": 52, "chat": 8, "absent": false}, {"d": "27-05-2026", "cases": 34, "tel": 36, "chat": 2, "absent": false}, {"d": "29-05-2026", "cases": 11, "tel": 2, "chat": 7, "absent": false}]}, "Iris S": {"lijn": "1", "days": [{"d": "01-05-2026", "cases": 29, "tel": 0, "chat": 0, "absent": false}, {"d": "04-05-2026", "cases": 7, "tel": 0, "chat": 0, "absent": false}, {"d": "05-05-2026", "cases": 6, "tel": 0, "chat": 0, "absent": false}, {"d": "07-05-2026", "cases": 18, "tel": 0, "chat": 0, "absent": false}, {"d": "08-05-2026", "cases": 18, "tel": 0, "chat": 0, "absent": false}, {"d": "11-05-2026", "cases": 14, "tel": 29, "chat": 44, "absent": false}, {"d": "12-05-2026", "cases": 13, "tel": 34, "chat": 31, "absent": false}, {"d": "13-05-2026", "cases": 17, "tel": 24, "chat": 16, "absent": false}, {"d": "15-05-2026", "absent": true}, {"d": "18-05-2026", "cases": 29, "tel": 36, "chat": 27, "absent": false}, {"d": "19-05-2026", "cases": 16, "tel": 51, "chat": 3, "absent": false}, {"d": "20-05-2026", "cases": 18, "tel": 34, "chat": 15, "absent": false}, {"d": "21-05-2026", "cases": 13, "tel": 51, "chat": 11, "absent": false}, {"d": "22-05-2026", "cases": 0, "tel": 42, "chat": 20, "absent": false}, {"d": "26-05-2026", "cases": 11, "tel": 14, "chat": 0, "absent": false}, {"d": "27-05-2026", "cases": 15, "tel": 33, "chat": 6, "absent": false}, {"d": "28-05-2026", "cases": 13, "tel": 29, "chat": 8, "absent": false}, {"d": "29-05-2026", "cases": 11, "tel": 41, "chat": 11, "absent": false}]}, "Iris W": {"lijn": "1", "days": [{"d": "04-05-2026", "cases": 14, "tel": 0, "chat": 0, "absent": false}, {"d": "05-05-2026", "cases": 14, "tel": 0, "chat": 0, "absent": false}, {"d": "06-05-2026", "cases": 12, "tel": 0, "chat": 0, "absent": false}, {"d": "07-05-2026", "cases": 17, "tel": 0, "chat": 0, "absent": false}, {"d": "08-05-2026", "cases": 1, "tel": 0, "chat": 0, "absent": false}, {"d": "11-05-2026", "cases": 28, "tel": 45, "chat": 2, "absent": false}, {"d": "12-05-2026", "cases": 39, "tel": 41, "chat": 1, "absent": false}, {"d": "13-05-2026", "absent": true}, {"d": "15-05-2026", "absent": true}, {"d": "18-05-2026", "cases": 35, "tel": 35, "chat": 13, "absent": false}, {"d": "19-05-2026", "cases": 29, "tel": 33, "chat": 17, "absent": false}, {"d": "20-05-2026", "cases": 39, "tel": 27, "chat": 2, "absent": false}, {"d": "21-05-2026", "cases": 62, "tel": 40, "chat": 12, "absent": false}, {"d": "26-05-2026", "cases": 44, "tel": 37, "chat": 2, "absent": false}, {"d": "27-05-2026", "cases": 18, "tel": 24, "chat": 11, "absent": false}, {"d": "28-05-2026", "cases": 39, "tel": 44, "chat": 18, "absent": false}]}, "Joyce": {"lijn": "1", "days": [{"d": "06-05-2026", "cases": 129, "tel": 0, "chat": 0, "absent": false}, {"d": "07-05-2026", "cases": 1, "tel": 0, "chat": 0, "absent": false}, {"d": "08-05-2026", "cases": 168, "tel": 0, "chat": 0, "absent": false}, {"d": "11-05-2026", "cases": 163, "tel": 0, "chat": 0, "absent": false}, {"d": "12-05-2026", "cases": 36, "tel": 0, "chat": 0, "absent": false}, {"d": "13-05-2026", "cases": 43, "tel": 0, "chat": 0, "absent": false}, {"d": "15-05-2026", "absent": true}, {"d": "18-05-2026", "cases": 102, "tel": 0, "chat": 0, "absent": false}, {"d": "19-05-2026", "cases": 79, "tel": 0, "chat": 2, "absent": false}, {"d": "20-05-2026", "cases": 34, "tel": 1, "chat": 0, "absent": false}, {"d": "22-05-2026", "cases": 0, "tel": 26, "chat": 9, "absent": false}, {"d": "26-05-2026", "cases": 112, "tel": 0, "chat": 0, "absent": false}, {"d": "27-05-2026", "cases": 73, "tel": 0, "chat": 0, "absent": false}, {"d": "29-05-2026", "cases": 57, "tel": 22, "chat": 1, "absent": false}]}, "Maik": {"lijn": "1", "days": [{"d": "01-05-2026", "cases": 116, "tel": 0, "chat": 0, "absent": false}, {"d": "04-05-2026", "cases": 125, "tel": 0, "chat": 0, "absent": false}, {"d": "05-05-2026", "cases": 114, "tel": 0, "chat": 0, "absent": false}, {"d": "06-05-2026", "cases": 51, "tel": 0, "chat": 0, "absent": false}, {"d": "07-05-2026", "cases": 110, "tel": 0, "chat": 0, "absent": false}, {"d": "08-05-2026", "cases": 69, "tel": 0, "chat": 0, "absent": false}, {"d": "11-05-2026", "cases": 47, "tel": 10, "chat": 0, "absent": false}, {"d": "12-05-2026", "cases": 51, "tel": 19, "chat": 0, "absent": false}, {"d": "13-05-2026", "cases": 63, "tel": 13, "chat": 0, "absent": false}, {"d": "15-05-2026", "absent": true}, {"d": "26-05-2026", "cases": 49, "tel": 19, "chat": 4, "absent": false}, {"d": "27-05-2026", "cases": 75, "tel": 14, "chat": 0, "absent": false}, {"d": "28-05-2026", "cases": 63, "tel": 14, "chat": 0, "absent": false}, {"d": "29-05-2026", "cases": 70, "tel": 17, "chat": 0, "absent": false}]}, "Micha": {"lijn": "1", "days": [{"d": "07-05-2026", "cases": 33, "tel": 0, "chat": 0, "absent": false}, {"d": "11-05-2026", "cases": 10, "tel": 0, "chat": 0, "absent": false}, {"d": "12-05-2026", "cases": 37, "tel": 0, "chat": 0, "absent": false}, {"d": "13-05-2026", "cases": 20, "tel": 18, "chat": 0, "absent": false}, {"d": "15-05-2026", "absent": true}, {"d": "26-05-2026", "cases": 49, "tel": 0, "chat": 0, "absent": false}, {"d": "27-05-2026", "cases": 47, "tel": 0, "chat": 0, "absent": false}, {"d": "28-05-2026", "cases": 47, "tel": 38, "chat": 0, "absent": false}]}, "Sanne": {"lijn": "1", "days": [{"d": "01-05-2026", "cases": 1, "tel": 0, "chat": 0, "absent": false}, {"d": "04-05-2026", "cases": 113, "tel": 0, "chat": 0, "absent": false}, {"d": "05-05-2026", "cases": 96, "tel": 0, "chat": 0, "absent": false}, {"d": "06-05-2026", "cases": 38, "tel": 0, "chat": 0, "absent": false}, {"d": "07-05-2026", "cases": 101, "tel": 0, "chat": 0, "absent": false}, {"d": "08-05-2026", "cases": 19, "tel": 0, "chat": 0, "absent": false}, {"d": "11-05-2026", "cases": 15, "tel": 6, "chat": 3, "absent": false}, {"d": "12-05-2026", "cases": 17, "tel": 20, "chat": 2, "absent": false}, {"d": "13-05-2026", "absent": true}, {"d": "15-05-2026", "absent": true}, {"d": "18-05-2026", "cases": 32, "tel": 18, "chat": 1, "absent": false}, {"d": "19-05-2026", "cases": 60, "tel": 24, "chat": 1, "absent": false}, {"d": "20-05-2026", "cases": 110, "tel": 5, "chat": 4, "absent": false}, {"d": "21-05-2026", "cases": 40, "tel": 23, "chat": 2, "absent": false}, {"d": "22-05-2026", "cases": 0, "tel": 9, "chat": 0, "absent": false}, {"d": "26-05-2026", "cases": 15, "tel": 20, "chat": 0, "absent": false}, {"d": "28-05-2026", "cases": 40, "tel": 7, "chat": 8, "absent": false}, {"d": "29-05-2026", "cases": 89, "tel": 50, "chat": 6, "absent": false}]}, "Stacy": {"lijn": "2", "days": [{"d": "01-05-2026", "cases": 2, "tel": 0, "chat": 0, "absent": false}, {"d": "04-05-2026", "cases": 5, "tel": 0, "chat": 0, "absent": false}, {"d": "05-05-2026", "cases": 2, "tel": 0, "chat": 0, "absent": false}, {"d": "06-05-2026", "cases": 7, "tel": 0, "chat": 0, "absent": false}, {"d": "07-05-2026", "cases": 10, "tel": 0, "chat": 0, "absent": false}, {"d": "08-05-2026", "cases": 4, "tel": 0, "chat": 0, "absent": false}, {"d": "12-05-2026", "cases": 7, "tel": 0, "chat": 0, "absent": false}, {"d": "13-05-2026", "cases": 4, "tel": 0, "chat": 0, "absent": false}, {"d": "15-05-2026", "cases": 7, "tel": 0, "chat": 0, "absent": false}, {"d": "19-05-2026", "cases": 2, "tel": 0, "chat": 0, "absent": false}, {"d": "20-05-2026", "cases": 4, "tel": 0, "chat": 0, "absent": false}, {"d": "21-05-2026", "cases": 5, "tel": 0, "chat": 0, "absent": false}]}, "Tessa": {"lijn": "1", "days": [{"d": "01-05-2026", "cases": 2, "tel": 0, "chat": 0, "absent": false}, {"d": "11-05-2026", "cases": 30, "tel": 19, "chat": 1, "absent": false}, {"d": "13-05-2026", "cases": 40, "tel": 20, "chat": 0, "absent": false}, {"d": "15-05-2026", "cases": 23, "tel": 24, "chat": 1, "absent": false}, {"d": "18-05-2026", "cases": 49, "tel": 16, "chat": 0, "absent": false}, {"d": "20-05-2026", "cases": 52, "tel": 26, "chat": 0, "absent": false}, {"d": "21-05-2026", "cases": 26, "tel": 40, "chat": 2, "absent": false}, {"d": "22-05-2026", "cases": 0, "tel": 20, "chat": 0, "absent": false}, {"d": "26-05-2026", "cases": 1, "tel": 0, "chat": 0, "absent": false}, {"d": "27-05-2026", "cases": 29, "tel": 25, "chat": 2, "absent": false}, {"d": "28-05-2026", "cases": 29, "tel": 31, "chat": 2, "absent": false}, {"d": "29-05-2026", "cases": 42, "tel": 30, "chat": 4, "absent": false}]}};
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const members = {};
+  for (let i = 1; i < lines.length; i++) {
+    const c = lines[i].split(',');
+    if (c.length < 4) continue;
+    const date=c[0].trim(), name=c[1].trim(), lijn=c[2].trim();
+    const cases=parseInt(c[3])||0, tel=parseInt(c[4])||0, chat=parseInt(c[5])||0;
+    const absent=(c[6]||'').trim().toLowerCase()==='ja';
+    if (!name||!date) continue;
+    if (!members[name]) members[name]={lijn,days:[]};
+    members[name].lijn=lijn;
+    if (absent) {
+      members[name].days.push({d:date,absent:true});
+    } else if (cases>0||tel>0||chat>0) {
+      members[name].days.push({d:date,cases,tel,chat,absent:false});
+    }
+  }
+  for (const p of Object.values(members)) {
+    p.days.sort((a,b)=>a.d.split('-').reverse().join('')<b.d.split('-').reverse().join('')?-1:1);
+  }
+  return members;
+}
+
+let DATA = FALLBACK_DATA;
+
+async function refreshData() {
+  const el=document.getElementById('dataStatus');
+  if(!el) return;
+  el.innerHTML='<span style="color:#9c6500">&#8635; Data laden uit Google Sheets...</span>';
+  try {
+    const resp = await fetch(CSV_URL);
+    if (!resp.ok) throw new Error('HTTP '+resp.status);
+    const text = await resp.text();
+    DATA = parseCSV(text);
+    try{const sfR=await fetch(CSV_URL.replace('gid=0','gid=1'));if(sfR.ok){const sfT=await sfR.text();const sfP=parseSFCSV(sfT);if(sfP)SF_DATA=sfP;}}catch(e){SF_DATA=SF_FALLBACK;}
+    const now=new Date().toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'});
+    el.innerHTML='<span style="color:#276221">&#10003; Live data &mdash; '+now+'</span><button onclick="refreshData()" style="margin-left:10px;font-size:11px;padding:2px 8px;border:1px solid #ccc;border-radius:4px;background:#fff;cursor:pointer">&#8635; Vernieuwen</button>';
+  } catch(e) {
+    DATA = FALLBACK_DATA;
+    el.innerHTML='<span style="color:#9c0006">&#9888; Sheet nog niet openbaar &mdash; ingebakken data actief.</span>'
+      +' <span style="font-size:11px;color:#888">Zet de Sheet op "Iedereen met de link kan bekijken" en klik vernieuwen.</span>'
+      +'<button onclick="refreshData()" style="margin-left:10px;font-size:11px;padding:2px 8px;border:1px solid #ccc;border-radius:4px;background:#fff;cursor:pointer">&#8635; Vernieuwen</button>';
+  }
+  buildNameGrid();
+  if(curTab==='tot')renderTotaal();
+  if(curTab==='sf')renderSF();
+}
+
+// Effective lijn per person per date
+function getLijn(name,date){
+  if(ALWAYS2.includes(name)) return '2';
+  if(name==='Joyce'||name==='Micha') return date>=CUTOFF?'1':'2';
+  return '1';
+}
+
+// Filter and annotate all days
+function getDays(name, weekFilter, lijnFilter){
+  const p=DATA[name];
+  if(!p) return [];
+  return p.days.filter(d=>{
+    if(d.absent) return false;
+    // Eva threshold
+    if(name==='Eva'&&(d.cases<=5||d.tel<=5)) return false;
+    // Week filter
+    if(weekFilter!=='alle'&&dateToWeek(d.d)!==weekFilter) return false;
+    // Lijn filter
+    const dl=getLijn(name,d.d);
+    if(lijnFilter==='alle') return true;
+    if(lijnFilter==='1+2') return true;
+    return dl===lijnFilter;
+  }).map(d=>({...d,lijn:getLijn(name,d.d)}));
+}
+
+// Daily averages for lijn benchmark
+function buildDailyAvg(weekFilter, lijnFilter){
+  const byDate={};
+  for(const [name,p] of Object.entries(DATA)){
+    for(const d of p.days){
+      if(d.absent) continue;
+      if(name==='Eva'&&(d.cases<=5||d.tel<=5)) continue;
+      const dl=getLijn(name,d.d);
+      if(lijnFilter!=='alle'&&lijnFilter!=='1+2'&&dl!==lijnFilter) continue;
+      if(weekFilter!=='alle'&&dateToWeek(d.d)!==weekFilter) continue;
+      if(!byDate[d.d]){byDate[d.d]={cases:[],tel:[]};}
+      byDate[d.d].cases.push(d.cases);
+      if(d.tel>0) byDate[d.d].tel.push(d.tel);
+    }
+  }
+  const res={};
+  for(const[date,v]of Object.entries(byDate)){
+    res[date]={
+      cases:v.cases.length?Math.round(v.cases.reduce((a,b)=>a+b,0)/v.cases.length):null,
+      tel:v.tel.length?Math.round(v.tel.reduce((a,b)=>a+b,0)/v.tel.length):null
+    };
+  }
+  return res;
+}
+
+function avg(arr){return arr.length?Math.round(arr.reduce((a,b)=>a+b,0)/arr.length):0;}
+function avgF(arr){return arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;}
+
+// Linear regression slope
+function trend(arr){
+  if(arr.length<3) return 0;
+  const n=arr.length;
+  const mx=(n-1)/2;
+  const my=avgF(arr);
+  let num=0,den=0;
+  arr.forEach((y,i)=>{num+=(i-mx)*(y-my);den+=(i-mx)**2;});
+  return den?num/den:0;
+}
+
+function trendIcon(slope,scale){
+  const t=slope/scale;
+  if(t>0.05) return '<span class="trend-up">↑ Stijgend</span>';
+  if(t<-0.05) return '<span class="trend-dn">↓ Dalend</span>';
+  return '<span class="trend-fl">→ Stabiel</span>';
+}
+
+function pill(v,n){
+  if(v===null||v===undefined) return '<span class="pill pn">–</span>';
+  const r=v/n;
+  return `<span class="pill ${r>=1?'pg':r>=.8?'pa':'pr'}">${v}</span>`;
+}
+function pillP(p){
+  if(p===null) return '<span class="pill pn">–</span>';
+  return `<span class="pill ${p>=100?'pg':p>=80?'pa':'pr'}">${p}%</span>`;
+}
+
+// ── State ────────────────────────────────────────────────────────────────────
+let curTab='ind', curWeek='alle', curLijn='alle';
+let selectedPersons=new Set();
+let totChart=null;
+let activeName=null, activeBtn=null;
+let charts=[];
+let totSortCol=2, totSortAsc=false;
+
+let sfChart1=null,sfChart2=null;
+function switchTab(t){
+  curTab=t;
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',['ind','tot','sf'][i]===t));
+  document.getElementById('page-ind').style.display=t==='ind'?'block':'none';
+  document.getElementById('page-tot').style.display=t==='tot'?'block':'none';
+  document.getElementById('page-sf').style.display=t==='sf'?'block':'none';
+  if(t==='tot')renderTotaal();
+  if(t==='sf')renderSF();
+}
+
+function buildWeekFilters(){
+  const weeks=new Set();
+  for(const p of Object.values(DATA)){for(const d of p.days){if(!d.absent)weeks.add(dateToWeek(d.d));}}
+  const sorted=[...weeks].sort();
+  const container=document.getElementById('weekButtons');
+  if(!container)return;
+  container.innerHTML='';
+  const allBtn=document.createElement('button');
+  allBtn.className='fb active';allBtn.dataset.week='alle';allBtn.textContent='Alle weken';
+  allBtn.onclick=()=>setWeek(allBtn);container.appendChild(allBtn);
+  sorted.forEach(w=>{
+    const dates=[];
+    for(const p of Object.values(DATA))for(const d of p.days)if(!d.absent&&dateToWeek(d.d)===w)dates.push(d.d);
+    dates.sort();
+    const fmt=d=>d.slice(0,5).replace(/^0/,'');
+    const lbl=dates[0]===dates[dates.length-1]?w+' ('+fmt(dates[0])+')':w+' ('+fmt(dates[0])+'\u2013'+fmt(dates[dates.length-1])+')';
+    const btn=document.createElement('button');
+    btn.className='fb';btn.dataset.week=w;btn.textContent=lbl;
+    btn.onclick=()=>setWeek(btn);container.appendChild(btn);
+  });
+}
+function setWeek(btn){
+  document.querySelectorAll('#weekButtons button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  curWeek=btn.dataset.week;
+  if(curTab==='ind'&&activeName) renderInd(activeName);
+  else if(curTab==='tot') renderTotaal();
+}
+
+function setLijn(btn){
+  document.querySelectorAll('[data-lijn]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  curLijn=btn.dataset.lijn;
+  selectedPersons.clear();
+  buildPersonSelect();
+  if(curTab==='ind'&&activeName) renderInd(activeName);
+  else if(curTab==='tot') renderTotaal();
+}
+
+// ── Name grid ────────────────────────────────────────────────────────────────
+function buildNameGrid(){
+const grid=document.getElementById('nameGrid');
+grid.innerHTML='';
+Object.keys(DATA).sort().forEach(name=>{
+  const origLijn=DATA[name].lijn;
+  const lc=origLijn==='1'?'b1':origLijn==='2'?'b2':'b12';
+  const btn=document.createElement('button');
+  btn.className='name-btn';
+  btn.innerHTML=`${name}<span class="badge ${lc}">${origLijn}</span>`;
+  btn.onclick=()=>{
+    if(activeBtn){activeBtn.classList.remove('active');}
+    btn.classList.add('active');activeBtn=btn;activeName=name;
+    renderInd(name);
+  };
+  grid.appendChild(btn);
+});
+  buildWeekFilters();
+  buildPersonSelect();
+}
+
+// ── Kill charts ──────────────────────────────────────────────────────────────
+function killCharts(){charts.forEach(c=>{try{c.destroy()}catch(e){}});charts=[];}
+
+// ── Individu ─────────────────────────────────────────────────────────────────
+function renderInd(name){
+  killCharts();
+  const myDays=getDays(name,curWeek,curLijn);
+  if(!myDays.length){
+    document.getElementById('ind-content').innerHTML='<div class="placeholder-msg">Geen data voor deze combinatie van filters.</div>';
+    return;
+  }
+  const dayAvg=buildDailyAvg(curWeek,curLijn);
+  const effectiveLijn=myDays[0].lijn;
+  const origLijn=DATA[name].lijn;
+  const lc=origLijn==='1'?'b1':origLijn==='2'?'b2':'b12';
+  const absCnt=DATA[name].days.filter(d=>d.absent).length;
+
+  const avC=avg(myDays.map(d=>d.cases));
+  const telD=myDays.filter(d=>d.tel>0);
+  const avT=telD.length?avg(telD.map(d=>d.tel)):null;
+  const avTot=avg(myDays.map(d=>d.cases+d.tel+d.chat));
+  const isLijn2=effectiveLijn==='2';
+  const normC=isLijn2?NC2:NC;
+  const normT=isLijn2?0:NT;
+  const minCase=isLijn2?8:5;
+  const minTel=isLijn2?0:4;
+  const pctC=Math.round(avC/normC*100);
+  const pctT=(normT>0&&avT!==null)?Math.round(avT/normT*100):null;
+
+  // Trend: slope of last 60% of days
+  const half=Math.ceil(myDays.length*0.5);
+  const recent=myDays.slice(-half);
+  const slopeC=trend(recent.map(d=>d.cases));
+  const slopeT=trend(recent.filter(d=>d.tel>0).map(d=>d.tel));
+  const trendCases=trendIcon(slopeC,NC/20);
+  const trendTel=avT?trendIcon(slopeT,NT/20):'<span class="trend-fl">– geen data</span>';
+
+  // Tijd
+  const theorC=avC*minCase;
+  const theorT=avT!==null?avT*minTel:0;
+  const theorTot=theorC+theorT;
+  const vrij=DAY-theorTot;
+  const vrijP=Math.round(vrij/DAY*100);
+
+  // Team day averages
+  const teamC=avg(Object.values(dayAvg).map(d=>d.cases).filter(x=>x!==null));
+  const teamT=avg(Object.values(dayAvg).map(d=>d.tel).filter(x=>x!==null));
+
+  const weekLabel=curWeek==='alle'?'alle weken':curWeek;
+  const lijnLabel=curLijn==='alle'?'alle lijnen':curLijn==='1+2'?'1e+2e lijn':'lijn '+curLijn;
+
+  document.getElementById('ind-content').innerHTML=`
+  <div class="card" style="display:flex;align-items:center;gap:14px;padding:14px 20px;margin-bottom:14px">
+    <div style="width:42px;height:42px;border-radius:50%;background:#1F3864;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${name.slice(0,2).toUpperCase()}</div>
+    <div>
+      <p style="font-size:16px;font-weight:700">${name}</p>
+      <p style="font-size:12px;color:#888;margin-top:2px">
+        Lijn <span class="badge ${lc}">${origLijn}</span>
+        &nbsp;·&nbsp; ${myDays.length} actieve dagen (filter: ${weekLabel}, ${lijnLabel})
+        &nbsp;·&nbsp; ${absCnt} dag(en) afwezig
+      </p>
+    </div>
+    <div style="margin-left:auto;text-align:right">
+      <p style="font-size:11px;color:#888;margin-bottom:3px">Trend cases</p>
+      <p style="font-size:14px">${trendCases}</p>
+      <p style="font-size:11px;color:#888;margin-top:6px;margin-bottom:3px">Trend telefonie</p>
+      <p style="font-size:14px">${trendTel}</p>
+    </div>
+  </div>
+
+  <div class="mrow">
+    <div class="mc"><div class="ml">Gem. cases/dag</div><div class="mv">${avC}</div>
+      <div class="ms">${pillP(pctC)} van norm (${NC})</div></div>
+    <div class="mc"><div class="ml">Gem. telefonie/dag</div><div class="mv">${avT!==null?avT:'–'}</div>
+      <div class="ms">${pillP(pctT)}</div></div>
+    <div class="mc"><div class="ml">Gem. chat/dag</div><div class="mv">${avg(myDays.filter(d=>d.chat>0).map(d=>d.chat))||'–'}</div>
+      <div class="ms"><span class="pill pn">geen norm</span></div></div>
+    <div class="mc"><div class="ml">Gem. totaal/dag</div><div class="mv">${avTot}</div>
+      <div class="ms" style="font-size:11px;color:#aaa">${myDays.length} dagen</div></div>
+    <div class="mc"><div class="ml">Team gem. dag</div>
+      <div class="mv" style="font-size:14px;color:#555">C: ${teamC} / T: ${teamT}</div>
+      <div class="ms" style="font-size:11px;color:#aaa">jij: C ${(()=>{const d=avC-teamC,c=d>=0?'#276221':'#9c0006';return '<span style=color:'+c+'>'+(d>=0?'+':'')+d+'</span>';})()}&nbsp;/ T ${avT!==null?(()=>{const d=avT-teamT,c=d>=0?'#276221':'#9c0006';return '<span style=color:'+c+'>'+(d>=0?'+':'')+d+'</span>';})():'–'}</div>
+    </div>
+  </div>
+
+  <div class="tijd-bar">
+    <h2>Theoretische tijdsbesteding – gemiddelde dag</h2>
+    <div class="tgrid">
+      <div class="ti"><div class="tl">Cases tijd</div><div class="tv tv-b">${theorC} min</div><div class="ts">${avC} × 5 min</div></div>
+      <div class="ti"><div class="tl">Telefonie tijd</div><div class="tv tv-g">${avT!==null?theorT+' min':'–'}</div><div class="ts">${avT!==null?avT+' × 4 min':'geen data'}</div></div>
+      <div class="ti"><div class="tl">Totaal productief</div><div class="tv ${theorTot<=DAY*.8?'tv-g':theorTot<=DAY?'tv-o':'tv-r'}">${theorTot} min</div><div class="ts">${Math.round(theorTot/DAY*100)}% van 8u (480 min)</div></div>
+      <div class="ti"><div class="tl">"Vrije" tijd</div><div class="tv ${vrijP>35?'tv-r':vrijP>20?'tv-o':'tv-g'}">${vrij} min</div><div class="ts">${vrijP}% van dag (overig/chat/admin)</div></div>
+    </div>
+  </div>
+
+  <div class="chart-row">
+    <div class="cc">
+      <div class="cl">Closed cases per dag</div>
+      <div class="cs">t.o.v. norm en daggemiddelde lijngenoten</div>
+      <div class="legend-row">
+        <span class="li"><span class="lsq" style="background:#1F3864"></span>Cases</span>
+        <span class="li"><span class="lln" style="border-color:#1F3864"></span>Norm (${NC})</span>
+        <span class="li"><span class="lln" style="border-color:#F4B942"></span>Daggem.</span>
+      </div>
+      <div style="position:relative;height:${Math.max(150,myDays.length*20)}px">
+        <canvas id="cChart" role="img" aria-label="Cases per dag ${name}"></canvas>
+      </div>
+    </div>
+    <div class="cc">
+      <div class="cl">Telefonie per dag</div>
+      <div class="cs">t.o.v. norm en daggemiddelde lijngenoten</div>
+      <div class="legend-row">
+        <span class="li"><span class="lsq" style="background:#276221"></span>Telefonie</span>
+        <span class="li"><span class="lln" style="border-color:#1F3864"></span>Norm (${NT})</span>
+        <span class="li"><span class="lln" style="border-color:#F4B942"></span>Daggem.</span>
+      </div>
+      <div style="position:relative;height:${Math.max(150,myDays.length*20)}px">
+        <canvas id="tChart" role="img" aria-label="Telefonie per dag ${name}"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="trend-card">
+    <h2>Trendlijn cases (voortschrijdend gemiddelde)</h2>
+    <p>Geeft aan of prestaties de laatste periode stijgen of dalen</p>
+    <div style="position:relative;height:160px">
+      <canvas id="trChart" role="img" aria-label="Trendlijn ${name}"></canvas>
+    </div>
+  </div>
+
+  <div class="twrap">
+    <h2>Dagdetail</h2>
+    <table>
+      <thead><tr>
+        <th style="text-align:left">Datum</th><th style="text-align:left">Week</th>
+        <th>Cases</th><th>vs. team</th><th>Tel.</th><th>vs. team</th>
+        <th>Chat</th><th>Totaal</th><th>Theor. tijd</th><th>"Vrije" tijd</th>
+      </tr></thead>
+      <tbody>${buildRows(myDays,dayAvg)}</tbody>
+    </table>
+  </div>`;
+
+  const labels=myDays.map(d=>d.d.slice(0,5));
+  const casesD=myDays.map(d=>d.cases);
+  const telD2=myDays.map(d=>d.tel>0?d.tel:0);
+  const normCL=labels.map(()=>normC);
+  const normTL=labels.map(()=>normT||NT);
+  const avgCL=myDays.map(d=>dayAvg[d.d]?dayAvg[d.d].cases:null);
+  const avgTL=myDays.map(d=>dayAvg[d.d]?dayAvg[d.d].tel:null);
+
+  const sharedOpts=()=>({
+    indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
+    scales:{x:{grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10}}}}
+  });
+
+  const c1=new Chart(document.getElementById('cChart'),{type:'bar',data:{labels,datasets:[
+    {type:'bar',data:casesD,backgroundColor:casesD.map(v=>v>=NC?'#27622180':v>=NC*.8?'#9c650080':'#9c000680'),borderRadius:3,barThickness:12,label:'Cases'},
+    {type:'line',data:normCL,borderColor:'#1F3864',borderWidth:1.5,borderDash:[5,3],pointRadius:0,label:'Norm'},
+    {type:'line',data:avgCL,borderColor:'#F4B942',borderWidth:1.5,borderDash:[3,3],pointRadius:0,label:'Daggem.'}
+  ]},options:sharedOpts()});
+
+  const c2=new Chart(document.getElementById('tChart'),{type:'bar',data:{labels,datasets:[
+    {type:'bar',data:telD2,backgroundColor:telD2.map(v=>v>=NT?'#27622180':v>=NT*.8&&v>0?'#9c650080':v>0?'#9c000680':'rgba(200,200,200,.2)'),borderRadius:3,barThickness:12,label:'Tel'},
+    {type:'line',data:normTL,borderColor:'#1F3864',borderWidth:1.5,borderDash:[5,3],pointRadius:0,label:'Norm'},
+    {type:'line',data:avgTL,borderColor:'#F4B942',borderWidth:1.5,borderDash:[3,3],pointRadius:0,label:'Daggem.'}
+  ]},options:sharedOpts()});
+
+  // Trend chart: moving average + trendline
+  const ma=casesD.map((_,i)=>{const sl=casesD.slice(Math.max(0,i-2),i+1);return Math.round(sl.reduce((a,b)=>a+b,0)/sl.length);});
+  const n=casesD.length;const mx=(n-1)/2;const my=avgF(casesD);
+  let num=0,den=0;casesD.forEach((y,i)=>{num+=(i-mx)*(y-my);den+=(i-mx)**2;});
+  const sl=den?num/den:0;const inter=my-sl*mx;
+  const trendLine=casesD.map((_,i)=>Math.round(inter+sl*i));
+
+  const c3=new Chart(document.getElementById('trChart'),{type:'line',data:{labels,datasets:[
+    {data:casesD,borderColor:'rgba(31,56,100,.2)',backgroundColor:'transparent',pointRadius:3,pointBackgroundColor:'#1F3864',borderWidth:1,label:'Cases/dag'},
+    {data:ma,borderColor:'#1F3864',borderWidth:2,pointRadius:0,tension:.4,label:'Voortschr. gem.'},
+    {data:trendLine,borderColor:sl>=0?'#276221':'#9c0006',borderWidth:2,borderDash:[6,3],pointRadius:0,label:'Trendlijn'}
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'bottom',labels:{font:{size:11},boxWidth:12}},
+      tooltip:{mode:'index',intersect:false}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:10}}},
+      y:{grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:10}},suggestedMin:0}}}});
+
+  charts.push(c1,c2,c3);
+}
+
+function buildRows(days,dayAvg){
+  return days.map(d=>{
+    const av=dayAvg[d.d]||{};
+    const tot=d.cases+d.tel+d.chat;
+    const theorT=d.cases*5+(d.tel>0?d.tel*4:0);
+    const vrij=DAY-theorT;
+    const cDiff=av.cases!==null&&av.cases!==undefined?d.cases-av.cases:null;
+    const tDiff=av.tel!==null&&av.tel!==undefined&&d.tel>0?d.tel-av.tel:null;
+    const cVs=cDiff!==null?`<span style="font-size:11px;color:${cDiff>=0?'#276221':'#9c0006'}">${cDiff>=0?'+':''}${cDiff}</span>`:'–';
+    const tVs=tDiff!==null?`<span style="font-size:11px;color:${tDiff>=0?'#276221':'#9c0006'}">${tDiff>=0?'+':''}${tDiff}</span>`:'–';
+    const vrijC=Math.round(vrij/DAY*100);
+    const vrijStyle=vrijC>35?'color:#9c0006;font-weight:700':vrijC>20?'color:#9c6500':'color:#276221';
+    return `<tr>
+      <td>${d.d}</td><td style="color:#aaa">${dateToWeek(d.d)}</td>
+      <td>${pill(d.cases,NC)}</td><td>${cVs}</td>
+      <td>${d.tel>0?pill(d.tel,NT):'<span style="color:#ddd">–</span>'}</td><td>${tVs}</td>
+      <td>${d.chat>0?d.chat:'<span style="color:#ddd">–</span>'}</td>
+      <td style="font-weight:700">${tot}</td>
+      <td style="color:#1F3864">${theorT} min</td>
+      <td style="${vrijStyle}">${vrij} min (${vrijC}%)</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Totaal ────────────────────────────────────────────────────────────────────
+function buildPersonSelect(){
+  const c=document.getElementById('personSelect');if(!c)return;c.innerHTML='';
+  Object.keys(DATA).sort().forEach(name=>{
+    const btn=document.createElement('button');
+    btn.className='psel-btn'+(selectedPersons.has(name)?' psel-active':'');
+    btn.textContent=name;
+    btn.onclick=()=>{if(selectedPersons.has(name))selectedPersons.delete(name);else selectedPersons.add(name);btn.classList.toggle('psel-active');renderTotaal();};
+    c.appendChild(btn);
+  });
+}
+function renderTotaal(){
+  const rows=[];
+  for(const [name,p] of Object.entries(DATA)){
+    if(selectedPersons.size>0&&!selectedPersons.has(name))continue;
+    const days=getDays(name,curWeek,curLijn);
+    if(!days.length)continue;
+    const avC=avg(days.map(d=>d.cases));
+    const telOnly=days.filter(d=>d.tel>0);
+    const avT=telOnly.length?avg(telOnly.map(d=>d.tel)):null;
+    const eL=days[0].lijn;const rNC=eL==='2'?NC2:NC;
+    const pC=Math.round(avC/rNC*100);
+    const pT=(eL!=='2'&&avT!==null)?Math.round(avT/NT*100):null;
+    const theorT=avC*5+(avT!==null?avT*4:0);
+    const vrij=DAY-theorT;
+    const sl=trend(days.map(d=>d.cases));
+    const tIcon=sl>NC/20*0.05?'↑':sl<-NC/20*0.05?'↓':'→';
+    const tClass=tIcon==='↑'?'trend-up':tIcon==='↓'?'trend-dn':'trend-fl';
+    const lijn=days[0].lijn;
+    const lc=lijn==='1'?'b1':lijn==='2'?'b2':'b12';
+    rows.push({name,lijn,lc,avC,pC,avT,pT,sl,tIcon,tClass,theorT,vrij,days:days.length});
+  }
+  // Metrics
+  const allC=rows.flatMap(r=>Array(r.days).fill(r.avC));
+  const allT=rows.filter(r=>r.avT!==null).flatMap(r=>Array(r.days).fill(r.avT));
+  document.getElementById('totMetrics').innerHTML=`
+    <div class="mc"><div class="ml">Gem. cases (groep)</div><div class="mv">${avg(rows.map(r=>r.avC))}</div>
+      <div class="ms">${pillP(Math.round(avg(rows.map(r=>r.avC))/NC*100))} van norm</div></div>
+    <div class="mc"><div class="ml">Gem. tel (groep)</div><div class="mv">${avg(rows.filter(r=>r.avT!==null).map(r=>r.avT))}</div>
+      <div class="ms">${pillP(Math.round(avg(rows.filter(r=>r.avT!==null).map(r=>r.avT))/NT*100))}</div></div>
+    <div class="mc"><div class="ml">Norm cases gehaald</div><div class="mv">${rows.filter(r=>r.pC>=100).length}/${rows.length}</div>
+      <div class="ms" style="font-size:11px;color:#aaa">medewerkers</div></div>
+    <div class="mc"><div class="ml">Stijgende trend</div><div class="mv">${rows.filter(r=>r.tIcon==='↑').length}/${rows.length}</div>
+      <div class="ms" style="font-size:11px;color:#aaa">medewerkers</div></div>`;
+
+  // Sort
+  rows.sort((a,b)=>{
+    const vals=r=>[r.name,r.lijn,r.avC,r.pC,r.avT??-1,r.pT??-1,r.sl,r.theorT,r.vrij,r.days][totSortCol];
+    const va=vals(a),vb=vals(b);
+    return totSortAsc?(va>vb?1:va<vb?-1:0):(va<vb?1:va>vb?-1:0);
+  });
+
+  if(totChart){try{totChart.destroy();}catch(e){}}
+  const tce=document.getElementById('totChart');
+  if(tce&&rows.length){
+    const sr=[...rows].sort((a,b)=>b.avC-a.avC);
+    totChart=new Chart(tce,{type:'bar',data:{labels:sr.map(r=>r.name),datasets:[
+      {label:'Cases',data:sr.map(r=>r.avC),backgroundColor:sr.map(r=>{const n=r.lijn==='2'?NC2:NC;return r.avC>=n?'rgba(39,98,33,.8)':r.avC>=n*.8?'rgba(156,101,0,.8)':'rgba(156,0,6,.8)';}),borderRadius:3,barPercentage:.4},
+      {label:'Tel',data:sr.map(r=>r.avT||0),backgroundColor:'rgba(31,56,100,.4)',borderRadius:3,barPercentage:.4}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{ticks:{font:{size:10}}}}}});
+  }
+  document.getElementById('totBody').innerHTML=rows.map(r=>`<tr>
+    <td>${r.name}</td>
+    <td><span class="badge ${r.lc}">${r.lijn}</span></td>
+    <td>${pill(r.avC,r.lijn==='2'?NC2:NC)}</td>
+    <td>${pillP(r.pC)}</td>
+    <td>${r.lijn==='2'?'<span class="pill pn">geen norm</span>':r.avT!==null?pill(r.avT,NT):'<span class="pill pn">–</span>'}</td>
+    <td>${pillP(r.pT)}</td>
+    <td><span class="${r.tClass}">${r.tIcon} ${r.tIcon==='↑'?'Stijgend':r.tIcon==='↓'?'Dalend':'Stabiel'}</span></td>
+    <td style="color:#1F3864;font-weight:600">${r.theorT} min</td>
+    <td style="color:${Math.round(r.vrij/DAY*100)>35?'#9c0006':Math.round(r.vrij/DAY*100)>20?'#9c6500':'#276221'};font-weight:600">${r.vrij} min (${Math.round(r.vrij/DAY*100)}%)</td>
+    <td style="color:#aaa">${r.days}</td>
+  </tr>`).join('');
+}
+
+function sortTot(col){
+  if(totSortCol===col) totSortAsc=!totSortAsc;
+  else{totSortCol=col;totSortAsc=col!==7;}
+  renderTotaal();
+}
+
+switchTab('ind');
+buildNameGrid();
+refreshData();
+
+const SF_FALLBACK = {"Tessa": {"total": 95, "closed": 95, "onhold": 0, "waiting": 0, "cats": {"Revision": 22, "Process images": 12, "Other": 31, "Comment": 4, "Order": 21, "Appointment": 3, "Packages & products": 1, "Pricing and invoicing": 1}, "subcats": {"Photography": 12, "360": 4, "Video": 10, "Status": 12, "Information for photographer": 2, "Productinformation": 1, "Creation": 3, "Invoice not correct": 1, "Adjust": 6, "General questions": 1}}, "Maik": {"total": 280, "closed": 279, "onhold": 1, "waiting": 0, "cats": {"Comment": 35, "Revision": 85, "Process images": 86, "Other": 63, "Order": 10, "Packages & products": 1}, "subcats": {"Floorplanner": 71, "Photography": 12, "Video": 35, "360": 2, "Creation": 5, "Cancel": 5, "Productinformation": 1}}, "Baoying": {"total": 130, "closed": 128, "onhold": 1, "waiting": 1, "cats": {"Revision": 49, "Onbekend": 2, "Comment": 45, "Packages & products": 18, "Order": 15, "Other": 1}, "subcats": {"Floorplanner": 68, "Productinformation": 18, "Status": 15, "MRP": 25, "Video": 1}}, "Joyce": {"total": 209, "closed": 209, "onhold": 0, "waiting": 0, "cats": {"Revision": 59, "Comment": 75, "Onbekend": 30, "Process images": 13, "Order": 20, "Other": 8, "Packages & products": 2, "Integrations": 2}, "subcats": {"Floorplanner": 99, "Video": 18, "MRP": 10, "Photography": 6, "Adjust": 10, "Status": 3, "Productinformation": 2, "Cancel": 5, "Creation": 2, "Realworks": 2, "Artist impression": 1}}, "Iris S": {"total": 38, "closed": 38, "onhold": 0, "waiting": 0, "cats": {"Revision": 11, "Other": 27}, "subcats": {"360": 1, "Photography": 10}}, "Sanne": {"total": 128, "closed": 127, "onhold": 1, "waiting": 0, "cats": {"Other": 29, "Order": 9, "Process images": 28, "Revision": 47, "Comment": 13, "Integrations": 2}, "subcats": {"Cancel": 4, "Floorplanner": 38, "360": 3, "Video": 6, "Photography": 13, "Status": 5, "Realworks": 2}}, "Imke": {"total": 69, "closed": 69, "onhold": 0, "waiting": 0, "cats": {"Process images": 13, "Revision": 10, "Order": 41, "Other": 2, "Comment": 2, "Onbekend": 1}, "subcats": {"Photography": 7, "Status": 33, "Adjust": 2, "Video": 3, "Creation": 2, "Cancel": 4, "360": 2}}, "Iris W": {"total": 73, "closed": 71, "onhold": 2, "waiting": 0, "cats": {"Comment": 13, "Other": 24, "Revision": 9, "Photographer calls": 8, "Process images": 11, "Order": 4, "Packages & products": 1, "Onbekend": 3}, "subcats": {"Video": 16, "Appointment issues": 8, "360": 1, "Status": 3, "Photography": 4, "Productinformation": 1, "Adjust": 1, "Floorplanner": 1}}, "Bas": {"total": 39, "closed": 39, "onhold": 0, "waiting": 0, "cats": {"Comment": 18, "Packages & products": 6, "Revision": 9, "Order": 2, "Onbekend": 4}, "subcats": {"Floorplanner": 25, "Productinformation": 6, "Status": 2, "MRP": 2}}, "Dimitri": {"total": 21, "closed": 21, "onhold": 0, "waiting": 0, "cats": {"Comment": 12, "Packages & products": 8, "Revision": 1}, "subcats": {"Floorplanner": 13, "Productinformation": 8}}, "Micha": {"total": 132, "closed": 132, "onhold": 0, "waiting": 0, "cats": {"Revision": 118, "Process images": 12, "Order": 1, "Onbekend": 1}, "subcats": {"Floorplanner": 51, "Photography": 52, "Video": 9, "360": 3, "MRP": 3, "Cancel": 1}}, "Eva": {"total": 5, "closed": 5, "onhold": 0, "waiting": 0, "cats": {"Onbekend": 4, "Other": 1}, "subcats": {}}, "Danou": {"total": 38, "closed": 38, "onhold": 0, "waiting": 0, "cats": {"Other": 10, "Revision": 15, "Process images": 2, "Appointment": 4, "Order": 7}, "subcats": {"Photography": 12, "Video": 1, "Information for photographer": 1, "Status": 6, "General questions": 3, "Adjust": 1, "360": 1, "Floorplanner": 1}}};
+const SF_NAME_MAP = {"Baoying Su":"Baoying","Bas Hendriks":"Bas","Danou Anholts":"Danou","Dimitri Singels":"Dimitri","Eva van de Laar":"Eva","Imke Kuper":"Imke","Iris Schreppers":"Iris S","Iris Wind":"Iris W","Joyce van Roon":"Joyce","Maik Schampers":"Maik","Micha Steenis":"Micha","Sanne van Kessel":"Sanne","Tessa van Huijgevoort":"Tessa"};
+let SF_DATA = SF_FALLBACK;
+
+function parseCSVRow(line){
+  const r=[];let cur='',inQ=false;
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(inQ){if(ch==='"'&&line[i+1]==='"'){cur+='"';i++;}else if(ch==='"')inQ=false;else cur+=ch;}
+    else{if(ch==='"')inQ=true;else if(ch===','){r.push(cur.trim());cur='';}else cur+=ch;}
+  }
+  r.push(cur.trim());return r;
+}
+
+function parseSFCSV(text){
+  const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/);
+  if(lines.length<2)return SF_FALLBACK;
+  const h=parseCSVRow(lines[0]).map(x=>x.toLowerCase());
+  const oi=h.findIndex(x=>x.includes('owner')&&!x.includes('dept'));
+  const ci=h.findIndex(x=>x.includes('categor')&&!x.includes('sub'));
+  const si=h.findIndex(x=>x.includes('sub'));
+  const sti=h.findIndex(x=>x.includes('status'));
+  const stats={};
+  for(let i=1;i<lines.length;i++){
+    if(!lines[i].trim())continue;
+    const c=parseCSVRow(lines[i]);
+    const sfName=(c[oi>=0?oi:2]||'').trim(),name=SF_NAME_MAP[sfName];
+    if(!name)continue;
+    const cat=(c[ci>=0?ci:3]||'Onbekend').trim()||'Onbekend';
+    const subcat=(c[si>=0?si:4]||'').trim(),status=(c[sti>=0?sti:5]||'').trim();
+    if(!stats[name])stats[name]={total:0,closed:0,onhold:0,waiting:0,cats:{},subcats:{}};
+    stats[name].total++;
+    if(status==='Closed')stats[name].closed++;
+    else if(status==='On Hold')stats[name].onhold++;
+    else if(status==='Antwoord van klant')stats[name].waiting++;
+    stats[name].cats[cat]=(stats[name].cats[cat]||0)+1;
+    if(subcat)stats[name].subcats[subcat]=(stats[name].subcats[subcat]||0)+1;
+  }
+  return Object.keys(stats).length>0?stats:SF_FALLBACK;
+}
+
+function renderSF(){
+  if(!SF_DATA||!Object.keys(SF_DATA).length)return;
+  const names=Object.keys(SF_DATA).sort();
+  const allCats=[...new Set(names.flatMap(n=>Object.keys(SF_DATA[n].cats||{})))].sort();
+  const totTotal=names.reduce((s,n)=>s+SF_DATA[n].total,0);
+  const totClosed=names.reduce((s,n)=>s+SF_DATA[n].closed,0);
+  const totHold=names.reduce((s,n)=>s+SF_DATA[n].onhold,0);
+  const totWait=names.reduce((s,n)=>s+SF_DATA[n].waiting,0);
+  document.getElementById('sfMetrics').innerHTML=`
+    <div class="mc"><div class="ml">Totaal cases</div><div class="mv">${totTotal}</div><div class="ms" style="font-size:11px;color:#aaa">in de export</div></div>
+    <div class="mc"><div class="ml">Closed</div><div class="mv" style="color:#276221">${totClosed}</div><div class="ms"><span class="pill pg">${Math.round(totClosed/totTotal*100)}%</span></div></div>
+    <div class="mc"><div class="ml">On Hold</div><div class="mv" style="color:#9c6500">${totHold}</div></div>
+    <div class="mc"><div class="ml">Wacht op klant</div><div class="mv" style="color:#9c0006">${totWait}</div></div>`;
+  const CAT_COLORS=['#1F3864','#276221','#9c6500','#0c447c','#666','#9c0006','#633806','#444','#0f6e56','#a32d2d','#aaa'];
+  let activeCats=new Set(allCats);
+  const fd=document.getElementById('sfCatFilter');fd.innerHTML='';
+  allCats.forEach(cat=>{
+    const btn=document.createElement('button');
+    btn.style.cssText='padding:3px 10px;border-radius:20px;border:1px solid #d0d5dd;background:#fff;color:#555;font-size:11px;cursor:pointer;font-family:Arial,sans-serif;margin-right:4px;margin-bottom:4px';
+    btn.textContent=cat;btn.dataset.active='1';
+    btn.onclick=()=>{
+      if(btn.dataset.active==='1'){btn.dataset.active='0';btn.style.opacity='.4';activeCats.delete(cat);}
+      else{btn.dataset.active='1';btn.style.opacity='1';activeCats.add(cat);}
+      drawSFBar(names,activeCats,allCats);
+    };
+    fd.appendChild(btn);
+  });
+  function drawSFBar(names,ac,allCats){
+    if(sfChart1){try{sfChart1.destroy();}catch(e){}}
+    const fc=[...ac].sort();
+    sfChart1=new Chart(document.getElementById('sfBarChart'),{
+      type:'bar',
+      data:{labels:names,datasets:fc.map((cat,i)=>({label:cat,data:names.map(n=>(SF_DATA[n].cats||{})[cat]||0),backgroundColor:CAT_COLORS[allCats.indexOf(cat)%CAT_COLORS.length],borderRadius:2,stack:'s'}))},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},tooltip:{mode:'index',intersect:false}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:11}}},y:{stacked:true,ticks:{font:{size:10}}}}}
+    });
+  }
+  drawSFBar(names,activeCats,allCats);
+  const openNames=names.filter(n=>SF_DATA[n].onhold>0||SF_DATA[n].waiting>0);
+  document.getElementById('sfStatusTable').innerHTML=openNames.length===0
+    ?'<tr><td colspan="3" style="padding:16px;text-align:center;color:#aaa">Geen openstaande cases</td></tr>'
+    :'<thead><tr style="background:#f8f9fb"><th style="padding:7px 12px;text-align:left;font-size:11px;color:#666;border-bottom:1px solid #eee">Medewerker</th><th style="padding:7px 12px;text-align:center;font-size:11px;color:#666;border-bottom:1px solid #eee">On Hold</th><th style="padding:7px 12px;text-align:center;font-size:11px;color:#666;border-bottom:1px solid #eee">Wacht klant</th></tr></thead><tbody>'
+    +openNames.map(n=>'<tr><td style="padding:7px 12px;font-weight:600;border-bottom:1px solid #f0f0f0">'+n+'</td><td style="padding:7px 12px;text-align:center;border-bottom:1px solid #f0f0f0">'+(SF_DATA[n].onhold>0?'<span class="pill pa">'+SF_DATA[n].onhold+'</span>':'–')+'</td><td style="padding:7px 12px;text-align:center;border-bottom:1px solid #f0f0f0">'+(SF_DATA[n].waiting>0?'<span class="pill pr">'+SF_DATA[n].waiting+'</span>':'–')+'</td></tr>').join('')+'</tbody>';
+  const subcatTotals={};
+  names.forEach(n=>Object.entries(SF_DATA[n].subcats||{}).forEach(([sc,v])=>{subcatTotals[sc]=(subcatTotals[sc]||0)+v;}));
+  const topSubs=Object.entries(subcatTotals).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if(sfChart2){try{sfChart2.destroy();}catch(e){}}
+  sfChart2=new Chart(document.getElementById('sfSubcatChart'),{
+    type:'bar',data:{labels:topSubs.map(x=>x[0]),datasets:[{data:topSubs.map(x=>x[1]),backgroundColor:topSubs.map((_,i)=>CAT_COLORS[i%CAT_COLORS.length]),borderRadius:3}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:11}}}}}
+  });
+  document.getElementById('sfDetailBody').innerHTML=[...names].sort((a,b)=>SF_DATA[b].total-SF_DATA[a].total).map((n,i)=>{
+    const s=SF_DATA[n];
+    const top3=Object.entries(s.cats||{}).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([c,v])=>'<span style="font-size:11px;background:#f0f0f0;border-radius:4px;padding:1px 6px;margin-right:3px">'+c+' <strong>'+v+'</strong></span>').join('');
+    return '<tr style="background:'+(i%2===0?'#f8f9fb':'#fff')+'"><td style="padding:7px 13px;font-weight:600;border-bottom:1px solid #f0f0f0">'+n+'</td><td style="padding:7px 13px;text-align:center;border-bottom:1px solid #f0f0f0;font-weight:700">'+s.total+'</td><td style="padding:7px 13px;text-align:center;border-bottom:1px solid #f0f0f0"><span class="pill pg">'+s.closed+'</span></td><td style="padding:7px 13px;text-align:center;border-bottom:1px solid #f0f0f0">'+(s.onhold>0?'<span class="pill pa">'+s.onhold+'</span>':'–')+'</td><td style="padding:7px 13px;text-align:center;border-bottom:1px solid #f0f0f0">'+(s.waiting>0?'<span class="pill pr">'+s.waiting+'</span>':'–')+'</td><td style="padding:7px 13px;border-bottom:1px solid #f0f0f0">'+top3+'</td></tr>';
+  }).join('');
+}
+
+</script>
+</body>
+</html>
